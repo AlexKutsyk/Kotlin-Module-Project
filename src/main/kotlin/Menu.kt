@@ -26,8 +26,8 @@ interface Menu {
 
 
     fun <K : String, V> listMenu(map: MutableMap<K, V?>, console: Scanner): MutableMap<K, V> {
-//        val myNote = Note()
-//        val mapNote: MutableMap<String, String?> = mutableMapOf()
+        val myNote = Note()
+        val mapNote: MutableMap<String, String?> = mutableMapOf()
         while (true) {
             prepareListItemMenu(map)
             println(intro)
@@ -49,8 +49,6 @@ interface Menu {
                             if (itemMake == "Создать заметку") {
                                 println("\nЗаметка: ${listItemsMenu[command].toUpperCase()}\nСодержание:\n${map[listItemsMenu[command]]}\n")
                             } else {
-                                val myNote = Note()
-                                val mapNote: MutableMap<String, String?> = mutableMapOf()
                                 map[listItemsMenu[command] as K] = myNote.listMenu(mapNote, console) as V?
                             }
                         }
