@@ -9,7 +9,7 @@ interface Menu {
     val listItemsMenu: MutableList<String>
 
 
-    fun <K : String, V> prepareListItemMenu(map: MutableMap<K, V?>): MutableList<String> {
+    fun <V> prepareListItemMenu(map: MutableMap<String, V?>): MutableList<String> {
 
         listItemsMenu.clear()
 
