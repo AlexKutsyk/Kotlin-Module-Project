@@ -1,56 +1,51 @@
 import java.util.*
 
-interface Menu {
-    val itemMake: String
-    val itemExit: String
-    val intro: String
-    val introInput: String
-    val inputName: String
-    val listItemsMenu: MutableList<String>
+abstract class Menu {
 
+    val listItemsMenu: MutableList<String> = mutableListOf()
 
-    fun <K : String, V> prepareListItemMenu(map: MutableMap<K, V?>): MutableList<String> {
+    var listNote: MutableList<Note> = mutableListOf()
+    var listArchive: MutableList<Archive> = mutableListOf()
 
-        listItemsMenu.clear()
-
-        listItemsMenu.add(itemMake)
-        val listKeysMap = map.keys.toList()
-
-        for (i in listKeysMap) {
-            listItemsMenu.add(i)
+    fun inputArchive(console: Scanner): MutableList<Archive> {
+        println("- СОЗДАТЬ АРХИВ -\nВведите название архива")
+        console.nextLine()
+        while (true) {
+            val name = console.nextLine()
+            if (name.isEmpty()) {
+                println("\nКажется, вы ничего не ввели или такое название уже существует\nПопробуйте ещё раз\n")
+            } else {
+                listArchive.add(Archive(name, mutableListOf()))
+                println("\n${name.uppercase()} архив успешно создан!\n")
+                break
+            }
         }
-
-        listItemsMenu.add(itemExit)
-        return listItemsMenu
+        return listArchive
     }
 
-
-    fun <K : String, V> listMenu(map: MutableMap<K, V?>, console: Scanner): MutableMap<K, V> {
-        val myNote = Note()
-        val mapNote: MutableMap<String, String?> = mutableMapOf()
+    fun listArchiveMenu(console: Scanner) {
         while (true) {
-            prepareListItemMenu(map)
-            println(intro)
+            prepareListItemMenuArchive()
+            println("- СПИСОК АРХИВОВ -")
             for (i in listItemsMenu) {
                 println("${listItemsMenu.indexOf(i)}. $i")
             }
             println("\nВыберите пункт меню, для этого введите его номер\n")
             if (console.hasNextInt()) {
-                val command: Int = console.nextInt()
-                if (command >= 0 && command < listItemsMenu.size) {
-                    when (command) {
-                        listItemsMenu.indexOf(itemMake) -> inputItem(map, console)
+                val commandMenuArchive: Int = console.nextInt()
+                if (commandMenuArchive >= 0 && commandMenuArchive < listItemsMenu.size) {
+                    when (commandMenuArchive) {
+                        listItemsMenu.indexOf("Создать архив") -> {
+                            inputArchive(console)
+                        }
+
                         listItemsMenu.indexOf("Выход") -> {
                             println("Выходим на предыдущее меню\n")
                             break
                         }
 
                         else -> {
-                            if (itemMake == "Создать заметку") {
-                                println("\nЗаметка: ${listItemsMenu[command].toUpperCase()}\nСодержание:\n${map[listItemsMenu[command]]}\n")
-                            } else {
-                                map[listItemsMenu[command] as K] = myNote.listMenu(mapNote, console) as V?
-                            }
+                            listNoteMenu(console, commandMenuArchive)
                         }
                     }
                 } else {
@@ -61,36 +56,96 @@ interface Menu {
                 println("\nВведите числовое значение\n")
             }
         }
-        return mutableMapOf()
     }
 
-    fun <K : String, V> inputItem(map: MutableMap<K, V?>, console: Scanner): MutableMap<K, V> {
-        println(introInput)
+    fun inputNote(console: Scanner, commandMenuArchive: Int): MutableList<Archive> {
+        println("- СОЗДАТЬ ЗАМЕТКУ -\nАрхив: ${listArchive[commandMenuArchive - 1].nameArchive.uppercase()}\n" +
+                "Создать заметку\n")
         console.nextLine()
         while (true) {
             val name: String = console.nextLine()
-            if (name.length == 0 || map.containsKey(name)) {
+            if (name.isEmpty()) {
                 println("\nКажется, вы ничего не ввели или такое название уже существует\nПопробуйте ещё раз\n")
             } else {
-                map.put(name as K, null)
-                println("\n${name.toUpperCase()} $inputName\n")
-                if (itemMake == "Создать заметку") {
-                    println("Введите содержание заметки\n")
-                    while (true) {
-                        val text: String = console.nextLine()
-                        if (text.length == 0) {
-                            println("\nКажется, вы ничего не ввели\nПопробуйте ещё раз\n")
-                        } else {
-                            map[name] = text as V?
-                            println("\n${name.toUpperCase()} создание заметки завершено\n")
-                            break
+                println("\n${name.uppercase()} название заметки успешно создано!\n")
+                println("Введите содержание заметки\n")
+                while (true) {
+                    val text: String = console.nextLine()
+                    if (text.isEmpty()) {
+                        println("\nКажется, вы ничего не ввели\nПопробуйте ещё раз\n")
+                    } else {
+                        println("Введите содержание заметки\n")
+
+                        val listNoteTemp: MutableList <Note> = mutableListOf()
+                        for(i in listArchive[commandMenuArchive-1].valueArchive) {
+                            listNoteTemp.add(i)
                         }
+                        listNote = listNoteTemp
+                        listNote.add(Note(name, text))
+                        listArchive.set(commandMenuArchive-1, Archive(listArchive[commandMenuArchive-1].nameArchive, listNote))
+                        println("\n${name.uppercase()} создание заметки завершено\n")
+                        break
                     }
                 }
             }
             break
         }
-        return mutableMapOf()
+        return listArchive
     }
-}
 
+    fun listNoteMenu(console: Scanner, commandMenuArchive: Int) {
+        while (true) {
+            prepareListItemMenuNote(commandMenuArchive)
+            println("- СПИСОК ЗАМЕТОК -")
+            for (i in listItemsMenu) {
+                println("${listItemsMenu.indexOf(i)}. $i")
+            }
+            println("\nВыберите пункт меню, для этого введите его номер\n")
+            if (console.hasNextInt()) {
+                val commandMenuNote: Int = console.nextInt()
+                if (commandMenuNote >= 0 && commandMenuNote < listItemsMenu.size) {
+                    when (commandMenuNote) {
+                        listItemsMenu.indexOf("Создать заметку") -> {
+                            inputNote(console, commandMenuArchive)
+                        }
+
+                        listItemsMenu.indexOf("Выход") -> {
+                            println("Выходим на предыдущее меню\n")
+                            break
+                        }
+
+                        else -> {
+                            println("\nЗаметка: ${listNote[commandMenuNote - 1].nameNote.uppercase()}\nСодержание:\n${listNote[commandMenuNote - 1].valueNote}\n")
+                        }
+                    }
+                } else {
+                    println("\nТакой пункт в меню отсутствует\nВведите число от 0 до ${listItemsMenu.size - 1}\n")
+                }
+            } else {
+                console.nextLine()
+                println("\nВведите числовое значение\n")
+            }
+        }
+    }
+
+    fun prepareListItemMenuArchive(): MutableList<String> {
+        listItemsMenu.clear()
+        listItemsMenu.add("Создать архив")
+        for (i in listArchive) {
+            listItemsMenu.add(i.nameArchive)
+        }
+        listItemsMenu.add("Выход")
+        return mutableListOf()
+    }
+
+    fun prepareListItemMenuNote(commandMenuArchive: Int): MutableList<String> {
+        listItemsMenu.clear()
+        listItemsMenu.add("Создать заметку")
+        for (i in listArchive[commandMenuArchive-1].valueArchive) {
+            listItemsMenu.add(i.nameNote)
+        }
+        listItemsMenu.add("Выход")
+        return listItemsMenu
+    }
+
+}

@@ -4,11 +4,9 @@ fun main() {
     val console = Scanner(System.`in`)
     println("--= ЗАМЕТКИ =--\n")
 
-    val myArchive = Archive()
-    val mapArchive : MutableMap<String, Note?> = mutableMapOf()
+    val menuArchive = ArchiveMenu()
 
-    myArchive.listMenu(mapArchive, console)
-
+    menuArchive.listArchiveMenu(console)
 
     console.close()
 }
