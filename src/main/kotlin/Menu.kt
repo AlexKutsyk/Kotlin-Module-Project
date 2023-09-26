@@ -33,7 +33,7 @@ abstract class Menu {
             println("\nВыберите пункт меню, для этого введите его номер\n")
             if (console.hasNextInt()) {
                 val commandMenuArchive: Int = console.nextInt()
-                if (commandMenuArchive >= 0 && commandMenuArchive < listItemsMenu.size) {
+                if (commandMenuArchive in 0 until listItemsMenu.size) {
                     when (commandMenuArchive) {
                         listItemsMenu.indexOf("Создать архив") -> {
                             inputArchive(console)
